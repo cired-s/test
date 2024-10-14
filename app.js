@@ -34,10 +34,7 @@ fetch('data.json')
     });
 
 // 添加商家資訊到商家圖層（可以是靜態資訊或來自另一個 API）
-L.marker([25.03, 121.51])
-    .addTo(storeLayer)
-    .bindPopup("夢時代購物中心")
-    .openPopup();
+
 
 // 添加圖層控制，讓用戶可以選擇顯示哪些圖層
 const baseLayers = {};

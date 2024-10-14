@@ -1,5 +1,5 @@
 // 初始化 Leaflet 地圖，中心點設為台灣 (可以根據需求調整經緯度)
-const map = L.map('map').setView([25.03236, 121.51813], 16);
+const map = L.map('map').setView([25.03236, 121.51813], 10);
 
 // 設定地圖圖層，這裡使用 OpenStreetMap 圖層
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -34,7 +34,10 @@ fetch('data.json')
     });
 
 // 添加商家資訊到商家圖層（可以是靜態資訊或來自另一個 API）
-
+    L.marker([25.03, 121.51])
+    .addTo(storeLayer)
+    .bindPopup("夢時代購物中心")
+    .openPopup();
 
 // 添加圖層控制，讓用戶可以選擇顯示哪些圖層
 const baseLayers = {};

@@ -6,16 +6,9 @@
     <title>語音輸入存入Excel</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body {
-            font-size: 20px; /* 增加字體大小，方便閱讀 */
-        }
-        input {
-            font-size: 20px;
-
-        }
-        button {
-            font-size: 20px;
-        }
+        body { font-size: 20px; }
+        input { font-size: 20px; }
+        button { font-size: 20px; }
     </style>
 </head>
 <body>
@@ -28,6 +21,15 @@
     <label>檢定合格單號（最多20字，只限英文與數字）:</label>
     <input type="text" id="certificate" maxlength="20" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
     <button onclick="startSpeech('certificate', 'zh-TW', true)">🎤</button>
+    <br>
+    
+    <label>經度:</label>
+    <input type="text" id="longitude" readonly>
+    <button onclick="getLocation()">取得經緯度</button>
+    <br>
+    
+    <label>緯度:</label>
+    <input type="text" id="latitude" readonly>
     <br>
     
     <button onclick="saveToExcel()">存入 EXCEL</button>
@@ -44,13 +46,12 @@
             
             recognition.onresult = function(event) {
                 let transcript = event.results[0][0].transcript;
-
+                
                 if (isCertificate) {
-                    // 合格單號：轉大寫並過濾非英數字
                     transcript = transcript.toUpperCase().replace(/[^A-Z0-9]/g, '');
                     transcript = fixCertificateFormat(transcript); // 確保格式正確
                 }
-
+                
                 document.getElementById(inputId).value = transcript;
             };
             
@@ -70,31 +71,21 @@
             }, 5 * 60 * 1000);
         }
 
-        // **修正語音輸入格式**
         function fixCertificateFormat(transcript) {
-            if (transcript.length < 5) return transcript; // 避免長度錯誤
+            if (transcript.length < 5) return transcript;
 
             let fixed = "";
-
-            // 1. 第 1 個字應該是英文字母 (A-Z)
             fixed += transcript[0].match(/[A-Z]/) ? transcript[0] : "A"; 
-
-            // 2. 第 2 個字應該是數字 (0-9)
             fixed += transcript[1].match(/[0-9]/) ? transcript[1] : "0";
-
-            // 3. 第 3 & 4 個字應該是英文字母 (A-Z)
             fixed += transcript[2].match(/[A-Z]/) ? transcript[2] : "B";
             fixed += transcript[3].match(/[A-Z]/) ? transcript[3] : "C";
 
-            // 4. 後面應該是數字
             for (let i = 4; i < transcript.length; i++) {
                 fixed += transcript[i].match(/[0-9]/) ? transcript[i] : "";
             }
 
             return fixed;
         }  
-     
-
         function formatCertificate(text) {
             let matches = text.match(/[A-Z]/g);
             let digits = text.match(/\d/g);
@@ -103,10 +94,13 @@
             
             return matches[0] + digits[0] + matches.slice(1, 3).join('') + digits.slice(1).join('');
         }
-        
+      
+
         function saveToExcel() {
             let user = document.getElementById('user').value.trim();
             let certificate = document.getElementById('certificate').value.trim();
+            let longitude = document.getElementById('longitude').value.trim();
+            let latitude = document.getElementById('latitude').value.trim();
             if (!user || !certificate) {
                 alert('請填寫完整資料');
                 return;
@@ -115,17 +109,35 @@
             let currentTime = new Date().toLocaleString('zh-TW', { hour12: false });
             
             let wb = XLSX.utils.book_new();
-            let ws = XLSX.utils.aoa_to_sheet([['時間', '用戶', '檢定合格單號']]);
+            let ws = XLSX.utils.aoa_to_sheet([['時間', '用戶', '檢定合格單號', '經度', '緯度']]);
             
             let prevData = localStorage.getItem('excelData');
             let data = prevData ? JSON.parse(prevData) : [];
-            data.push([currentTime, user, certificate]);
+            data.push([currentTime, user, certificate, longitude, latitude]);
             localStorage.setItem('excelData', JSON.stringify(data));
             
             XLSX.utils.sheet_add_aoa(ws, data, { origin: -1 });
             XLSX.utils.book_append_sheet(wb, ws, '資料');
             XLSX.writeFile(wb, '語音輸入.xlsx');
         }
+        
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('longitude').value = position.coords.longitude;
+                    document.getElementById('latitude').value = position.coords.latitude;
+                }, function(error) {
+                    console.error('無法獲取位置:', error);
+                    alert('無法取得 GPS 位置，請檢查是否允許存取');
+                });
+            } else {
+                alert("您的瀏覽器不支援定位功能");
+            }
+        }
+        
+        getLocation();
     </script>
 </body>
 </html>
+
+          

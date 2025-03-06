@@ -12,7 +12,7 @@
     </style>
 </head>
 <body>
-    <h2>語音輸入存入 Excel</h2>
+    <h2>市場磅秤檢查</h2>
     <label>用戶（最多30字）:</label>
     <input type="text" id="user" maxlength="30" style="width: 600px;">
     <button onclick="startSpeech('user', 'zh-TW')">🎤</button>
@@ -119,6 +119,11 @@
             XLSX.utils.sheet_add_aoa(ws, data, { origin: -1 });
             XLSX.utils.book_append_sheet(wb, ws, '資料');
             XLSX.writeFile(wb, '語音輸入.xlsx');
+            // 清空輸入欄位
+            document.getElementById('user').value = "";
+            document.getElementById('certificate').value = "";
+            document.getElementById('longitude').value = "";
+            document.getElementById('latitude').value = "";
         }
         
         function getLocation() {
@@ -139,5 +144,4 @@
     </script>
 </body>
 </html>
-
           

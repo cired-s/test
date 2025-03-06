@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -32,13 +31,14 @@
             recognition.start();
             
             recognition.onresult = function(event) {
-                let transcript = event.results[0][0].transcript.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                
+                let transcript = event.results[0][0].transcript;
+
                 if (isCertificate) {
-                    // 修正格式：確保是 合格單號的格式（A0BC1234567）
-                    transcript = fixCertificateFormat(transcript);
+                    // 合格單號：轉大寫並過濾非英數字
+                    transcript = transcript.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    transcript = fixCertificateFormat(transcript); // 確保格式正確
                 }
-                
+
                 document.getElementById(inputId).value = transcript;
             };
             

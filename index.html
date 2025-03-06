@@ -3,18 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>磅秤地圖</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <style>
-        #map {
-            height: 500px;
-        }
-    </style>
+    <title>語音輸入存入Excel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-    <h1>磅秤地圖</h1>
-    <div id="map"></div>
+    <h2>語音輸入存入 Excel</h2>
+    <label>用戶（最多30字）:</label>
+    <input type="text" id="user" maxlength="30">
+    <button onclick="startSpeech('user', 'zh-TW')">🎤</button>
+    <br>
+    
+    <label>檢定合格單號（最多20字，只限英文與數字）:</label>
+    <input type="text" id="certificate" maxlength="20" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+    <button onclick="startSpeech('certificate', 'zh-TW', true)">🎤</button>
+    <br>
+    
+    <button onclick="saveToExcel()">存入 EXCEL</button>
+    
+    <script>
+        let timeout;
+        function startSpeech(inputId, lang, isCertificate = false) {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = lang;
+    
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.start();
+            
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                
+                if (isCertificate) {
+                    // 修正格式：確保是 合格單號的格式（A0BC1234567）
+                    transcript = fixCertificateFormat(transcript);
+                }
+                
+                document.getElementById(inputId).value = transcript;
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('語音辨識錯誤:', event.error);
+                alert('語音輸入失敗，請再試一次。');
+            };
 
-    <script src="app.js"></script>
+            recognition.onspeechend = function() {
+                recognition.stop();
+            };
+
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                recognition.stop();
+                alert('輸入時間超過 5 分鐘，已取消。');
+            }, 5 * 60 * 1000);
+        }
+
+        // **修正語音輸入格式**
+        function fixCertificateFormat(transcript) {
+            if (transcript.length < 5) return transcript; // 避免長度錯誤
+
+            let fixed = "";
+
+            // 1. 第 1 個字應該是英文字母 (A-Z)
+            fixed += transcript[0].match(/[A-Z]/) ? transcript[0] : "A"; 
+
+            // 2. 第 2 個字應該是數字 (0-9)
+            fixed += transcript[1].match(/[0-9]/) ? transcript[1] : "0";
+
+            // 3. 第 3 & 4 個字應該是英文字母 (A-Z)
+            fixed += transcript[2].match(/[A-Z]/) ? transcript[2] : "B";
+            fixed += transcript[3].match(/[A-Z]/) ? transcript[3] : "C";
+
+            // 4. 後面應該是數字
+            for (let i = 4; i < transcript.length; i++) {
+                fixed += transcript[i].match(/[0-9]/) ? transcript[i] : "";
+            }
+
+            return fixed;
+        }  
+     
+
+        function formatCertificate(text) {
+            let matches = text.match(/[A-Z]/g);
+            let digits = text.match(/\d/g);
+            
+            if (!matches || matches.length < 3 || !digits || digits.length < 2) return text;
+            
+            return matches[0] + digits[0] + matches.slice(1, 3).join('') + digits.slice(1).join('');
+        }
+        
+        function saveToExcel() {
+            let user = document.getElementById('user').value.trim();
+            let certificate = document.getElementById('certificate').value.trim();
+            if (!user || !certificate) {
+                alert('請填寫完整資料');
+                return;
+            }
+            
+            let currentTime = new Date().toLocaleString('zh-TW', { hour12: false });
+            
+            let wb = XLSX.utils.book_new();
+            let ws = XLSX.utils.aoa_to_sheet([['時間', '用戶', '檢定合格單號']]);
+            
+            let prevData = localStorage.getItem('excelData');
+            let data = prevData ? JSON.parse(prevData) : [];
+            data.push([currentTime, user, certificate]);
+            localStorage.setItem('excelData', JSON.stringify(data));
+            
+            XLSX.utils.sheet_add_aoa(ws, data, { origin: -1 });
+            XLSX.utils.book_append_sheet(wb, ws, '資料');
+            XLSX.writeFile(wb, '語音輸入.xlsx');
+        }
+    </script>
 </body>
+</html>

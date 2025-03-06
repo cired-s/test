@@ -5,11 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>語音輸入存入Excel</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-size: 20px; /* 增加字體大小，方便閱讀 */
+        }
+        input {
+            font-size: 20px;
+
+        }
+        button {
+            font-size: 20px;
+        }
+    </style>
 </head>
 <body>
     <h2>語音輸入存入 Excel</h2>
     <label>用戶（最多30字）:</label>
-    <input type="text" id="user" maxlength="30">
+    <input type="text" id="user" maxlength="30" style="width: 600px;">
     <button onclick="startSpeech('user', 'zh-TW')">🎤</button>
     <br>
     

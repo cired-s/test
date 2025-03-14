@@ -18,7 +18,7 @@
     <button onclick="startSpeech('user', 'zh-TW')">🎤</button>
     <br>
     
-    <label>檢定合格單號（最多20字，只限英文與數字）:</label>
+    <label>檢定合格單號（最多20字，電子秤範例A0BA1234567）:</label>
     <input type="text" id="certificate" maxlength="20" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
     <button onclick="startSpeech('certificate', 'zh-TW', true)">🎤</button>
     <br>
@@ -32,7 +32,7 @@
     <input type="text" id="latitude" readonly>
     <br>
     
-    <button onclick="saveToExcel()">存入 EXCEL</button>
+    <button onclick="saveToExcel()">存入 磅秤檢查語音辨識EXCEL</button>
     
     <script>
         let timeout;
@@ -46,7 +46,7 @@
             
             recognition.onresult = function(event) {
                 let transcript = event.results[0][0].transcript;
-                
+                transcript = transcript.replace(/\.$/, ""); // 移除結尾的句號
                 if (isCertificate) {
                     transcript = transcript.toUpperCase().replace(/[^A-Z0-9]/g, '');
                     transcript = fixCertificateFormat(transcript); // 確保格式正確
@@ -75,10 +75,10 @@
             if (transcript.length < 5) return transcript;
 
             let fixed = "";
-            fixed += transcript[0].match(/[A-Z]/) ? transcript[0] : "A"; 
-            fixed += transcript[1].match(/[0-9]/) ? transcript[1] : "0";
-            fixed += transcript[2].match(/[A-Z]/) ? transcript[2] : "B";
-            fixed += transcript[3].match(/[A-Z]/) ? transcript[3] : "C";
+            fixed += transcript[0].match(/[A-G]/) ? transcript[0] : "A"; 
+            fixed += transcript[1].match(/[0-3]/) ? transcript[1] : "0";
+            fixed += transcript[2].match(/[A-B]/) ? transcript[2] : "B";
+            fixed += transcript[3].match(/[A-B]/) ? transcript[3] : "A";
 
             for (let i = 4; i < transcript.length; i++) {
                 fixed += transcript[i].match(/[0-9]/) ? transcript[i] : "";
@@ -86,15 +86,7 @@
 
             return fixed;
         }  
-        function formatCertificate(text) {
-            let matches = text.match(/[A-Z]/g);
-            let digits = text.match(/\d/g);
-            
-            if (!matches || matches.length < 3 || !digits || digits.length < 2) return text;
-            
-            return matches[0] + digits[0] + matches.slice(1, 3).join('') + digits.slice(1).join('');
-        }
-      
+        
 
         function saveToExcel() {
             let user = document.getElementById('user').value.trim();
@@ -118,7 +110,7 @@
             
             XLSX.utils.sheet_add_aoa(ws, data, { origin: -1 });
             XLSX.utils.book_append_sheet(wb, ws, '資料');
-            XLSX.writeFile(wb, '語音輸入.xlsx');
+            XLSX.writeFile(wb, '磅秤檢查語音輸入.xlsx');
             // 清空輸入欄位
             document.getElementById('user').value = "";
             document.getElementById('certificate').value = "";
@@ -144,4 +136,3 @@
     </script>
 </body>
 </html>
-          

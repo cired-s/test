@@ -3,136 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>語音輸入存入Excel</title>
+    <title>磅秤檢查程式</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-size: 20px; }
-        input { font-size: 20px; }
-        button { font-size: 20px; }
+        input[type="text"], select, button, label, span { font-size: 20px; margin: 5px 0; display: block; }
+        input[type="radio"] { display: inline-block; margin-right: 5px; }
+        #deviation-options { display: flex; align-items: center; }
+        #deviation-options input[type="radio"] { margin-right: 10px; }
+        #deviation-options button { margin-left: 10px; }
+        #qualified-number-part1, #qualified-number-part2 { display: inline-block; margin-right: 10px; }
+        .qualified-part, .stop-part, .check-qualified-part { display: block; margin-bottom: 10px; }
+        .qualified-prefix-options label, .qualified-type-options label, .stop-prefix-options label, .check-qualified-prefix-options label { display: inline-block; margin-right: 15px; }
     </style>
 </head>
 <body>
-    <h2>市場磅秤檢查</h2>
-    <label>用戶（最多30字）:</label>
-    <input type="text" id="user" maxlength="30" style="width: 600px;">
-    <button onclick="startSpeech('user', 'zh-TW')">🎤</button>
-    <br>
-    
-    <label>檢定合格單號（最多20字，電子秤範例A0BA1234567）:</label>
-    <input type="text" id="certificate" maxlength="20" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
-    <button onclick="startSpeech('certificate', 'zh-TW', true)">🎤</button>
-    <br>
-    
+    <h2>磅秤檢查</h2>
+
+    <label>時間:</label>
+    <input type="text" id="time" readonly>
+
+    <label>用戶:</label>
+    <input type="text" id="user" maxlength="30" placeholder="語音輸入，限30字">
+    <button onclick="startSpeech('user', { maxChars: 30, lang: 'zh-TW' })">🎤</button>
+
+    <div class="qualified-part">
+        <label>檢定合格單號:</label>
+        <div class="qualified-prefix-options">
+            <label><input type="radio" name="qualified-prefix" value="A0" checked> A0</label>
+            <label><input type="radio" name="qualified-prefix" value="B0"> B0</label>
+            <label><input type="radio" name="qualified-prefix" value="C0"> C0</label>
+            <label><input type="radio" name="qualified-prefix" value="D0"> D0</label>
+            <label><input type="radio" name="qualified-prefix" value="E0"> E0</label>
+            <label><input type="radio" name="qualified-prefix" value="F0"> F0</label>
+            <label><input type="radio" name="qualified-prefix" value="G0"> G0</label>
+        </div>
+        <div class="qualified-type-options">
+            <label><input type="radio" name="qualified-type" value="BA" checked> BA (電子式)</label>
+            <label><input type="radio" name="qualified-type" value="BB"> BB (機械式)</label>
+        </div>
+        <input type="text" id="qualified-serial" maxlength="7" placeholder="語音輸入7碼">
+        <button onclick="startSpeech('qualified-serial', { numbersOnly: true, maxChars: 7 })">🎤</button>
+    </div>
+
+    <label>其他單號:</label>
+    <input type="text" id="other-number" placeholder="語音輸入">
+    <button onclick="startSpeech('other-number')">🎤</button>
+
+    <label>器差(g):</label>
+    <div id="deviation-options">
+        <label><input type="radio" name="deviation" value="+2e"> +2e</label>
+        <label><input type="radio" name="deviation" value="+1e"> +1e</label>
+        <label><input type="radio" name="deviation" value="0" checked> 0</label>
+        <label><input type="radio" name="deviation" value="-1e"> -1e</label>
+        <label><input type="radio" name="deviation" value="-2e"> -2e</label>
+        <label><input type="radio" name="deviation" value="其他"> 其他</label>
+        <span id="other-deviation-container" style="display: none;">
+            <input type="text" id="other-deviation-input" maxlength="10" placeholder="請輸入其他器差">
+        </span>
+    </div>
+
+    <label>檢查結果:</label>
+    <label><input type="radio" name="checkResult" value="合格" checked> 合格</label>
+    <label><input type="radio" name="checkResult" value="不合格"> 不合格</label>
+
+    <div id="unqualified-reason-container" style="display: none;">
+        <label>不合格原因:</label>
+        <input type="text" id="unqualified-reason" maxlength="50" placeholder="語音輸入，限50字">
+        <button onclick="startSpeech('unqualified-reason', { maxChars: 50, lang: 'zh-TW' })">🎤</button>
+    </div>
+
+    <div class="check-qualified-part">
+        <label>檢查合格單號:</label>
+        <div class="check-qualified-prefix-options">
+            <label><input type="radio" name="check-qualified-prefix" value="A" checked> A</label>
+            <label><input type="radio" name="check-qualified-prefix" value="B"> B</label>
+            <label><input type="radio" name="check-qualified-prefix" value="C"> C</label>
+            <label><input type="radio" name="check-qualified-prefix" value="D"> D</label>
+            <label><input type="radio" name="check-qualified-prefix" value="E"> E</label>
+            <label><input type="radio" name="check-qualified-prefix" value="F"> F</label>
+            <label><input type="radio" name="check-qualified-prefix" value="G"> G</label>
+        </div>
+        <input type="text" id="check-qualified-serial" maxlength="10" placeholder="語音輸入，限10字">
+        <button onclick="startSpeech('check-qualified-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
+    </div>
+
+    <div class="stop-part">
+        <label>停止使用單號:</label>
+        <div class="stop-prefix-options">
+            <label><input type="radio" name="stop-prefix" value="A" checked> A</label>
+            <label><input type="radio" name="stop-prefix" value="B"> B</label>
+            <label><input type="radio" name="stop-prefix" value="C"> C</label>
+            <label><input type="radio" name="stop-prefix" value="D"> D</label>
+            <label><input type="radio" name="stop-prefix" value="E"> E</label>
+            <label><input type="radio" name="stop-prefix" value="F"> F</label>
+            <label><input type="radio" name="stop-prefix" value="G"> G</label>
+        </div>
+        <input type="text" id="stop-serial" maxlength="10" placeholder="語音輸入，限10字">
+        <button onclick="startSpeech('stop-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
+    </div>
+
     <label>經度:</label>
     <input type="text" id="longitude" readonly>
-    <button onclick="getLocation()">取得經緯度</button>
-    <br>
-    
+
     <label>緯度:</label>
     <input type="text" id="latitude" readonly>
-    <br>
-    
-    <button onclick="saveToExcel()">存入 磅秤檢查語音辨識EXCEL</button>
-    
+
+    <button onclick="getLocation()">取得經緯度</button>
+    <button onclick="saveToExcel()">存入 Excel</button>
+
     <script>
-        let timeout;
-        function startSpeech(inputId, lang, isCertificate = false) {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = lang;
-    
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-            recognition.start();
-            
-            recognition.onresult = function(event) {
-                let transcript = event.results[0][0].transcript;
-                transcript = transcript.replace(/\.$/, ""); // 移除結尾的句號
-                if (isCertificate) {
-                    transcript = transcript.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                    transcript = fixCertificateFormat(transcript); // 確保格式正確
+        let allData = JSON.parse(localStorage.getItem('weighingScaleData')) || []; // 從 localStorage 載入資料，如果沒有則初始化為空陣列
+        let lastQualifiedSerial = null; // 用於儲存前一個檢定合格單號的流水碼
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('time').value = getCurrentDateTime();
+            getLocation();
+
+            // 監聽器差選項的變化
+            const deviationOptions = document.getElementById('deviation-options');
+            const otherDeviationContainer = document.getElementById('other-deviation-container');
+            deviationOptions.addEventListener('change', function(event) {
+                if (event.target.value === '其他') {
+                    otherDeviationContainer.style.display = 'inline-block';
+                } else {
+                    otherDeviationContainer.style.display = 'none';
                 }
-                
-                document.getElementById(inputId).value = transcript;
-            };
-            
-            recognition.onerror = function(event) {
-                console.error('語音辨識錯誤:', event.error);
-                alert('語音輸入失敗，請再試一次。');
-            };
+            });
 
-            recognition.onspeechend = function() {
-                recognition.stop();
-            };
+            // 監聽檢查結果的變化
+            const checkResultRadios = document.querySelectorAll('input[name="checkResult"]');
+            const unqualifiedReasonContainer = document.getElementById('unqualified-reason-container');
+            checkResultRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === '不合格') {
+                        unqualifiedReasonContainer.style.display = 'block';
+                    } else {
+                        unqualifiedReasonContainer.style.display = 'none';
+                    }
+                });
+            });
+        });
 
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                recognition.stop();
-                alert('輸入時間超過 5 分鐘，已取消。');
-            }, 5 * 60 * 1000);
+        function getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         }
 
-        function fixCertificateFormat(transcript) {
-            if (transcript.length < 5) return transcript;
+        function startSpeech(inputId, options = {}) {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = options.lang || 'zh-TW';
+                recognition.continuous = false;
+                recognition.interimResults = false;
 
-            let fixed = "";
-            fixed += transcript[0].match(/[A-G]/) ? transcript[0] : "A"; 
-            fixed += transcript[1].match(/[0-3]/) ? transcript[1] : "0";
-            fixed += transcript[2].match(/[A-B]/) ? transcript[2] : "B";
-            fixed += transcript[3].match(/[A-B]/) ? transcript[3] : "A";
+                recognition.onresult = function(event) {
+                    let transcript = event.results[0][0].transcript.trim().toUpperCase();
+                    const inputElement = document.getElementById(inputId);
 
-            for (let i = 4; i < transcript.length; i++) {
-                fixed += transcript[i].match(/[0-9]/) ? transcript[i] : "";
+                    if (options.symbolMap) {
+                        for (const key in options.symbolMap) {
+                            const regex = new RegExp(key, 'gi');
+                            transcript = transcript.replace(regex, options.symbolMap[key]);
+                        }
+                    }
+
+                    if (options.symbolRegex) {
+                        if (!options.symbolRegex.test(transcript)) {
+                            alert('輸入格式不符規定！');
+                            transcript = ''; // 清空不符合格式的輸入
+                        }
+                    }
+
+                    if (options.numbersOnly) {
+                        transcript = transcript.replace(/[^0-9]/g, '');
+                    }
+
+                    if (options.maxChars && transcript.length > options.maxChars) {
+                        transcript = transcript.substring(0, options.maxChars);
+                    }
+
+                    if (inputElement) {
+                        inputElement.value = transcript;
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('語音辨識錯誤:', event.error);
+                    alert('語音辨識發生錯誤，請稍後再試。');
+                };
+
+                recognition.start();
+            } else {
+                alert('您的瀏覽器不支援語音辨識功能，請嘗試使用 Chrome 或 Edge。');
             }
-
-            return fixed;
-        }  
-        
-
-        function saveToExcel() {
-            let user = document.getElementById('user').value.trim();
-            let certificate = document.getElementById('certificate').value.trim();
-            let longitude = document.getElementById('longitude').value.trim();
-            let latitude = document.getElementById('latitude').value.trim();
-            if (!user || !certificate) {
-                alert('請填寫完整資料');
-                return;
-            }
-            
-            let currentTime = new Date().toLocaleString('zh-TW', { hour12: false });
-            
-            let wb = XLSX.utils.book_new();
-            let ws = XLSX.utils.aoa_to_sheet([['時間', '用戶', '檢定合格單號', '經度', '緯度']]);
-            
-            let prevData = localStorage.getItem('excelData');
-            let data = prevData ? JSON.parse(prevData) : [];
-            data.push([currentTime, user, certificate, longitude, latitude]);
-            localStorage.setItem('excelData', JSON.stringify(data));
-            
-            XLSX.utils.sheet_add_aoa(ws, data, { origin: -1 });
-            XLSX.utils.book_append_sheet(wb, ws, '資料');
-            XLSX.writeFile(wb, '磅秤檢查語音輸入.xlsx');
-            // 清空輸入欄位
-            document.getElementById('user').value = "";
-            document.getElementById('certificate').value = "";
-            document.getElementById('longitude').value = "";
-            document.getElementById('latitude').value = "";
         }
-        
+
         function getLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    document.getElementById('longitude').value = position.coords.longitude;
-                    document.getElementById('latitude').value = position.coords.latitude;
-                }, function(error) {
-                    console.error('無法獲取位置:', error);
-                    alert('無法取得 GPS 位置，請檢查是否允許存取');
-                });
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
-                alert("您的瀏覽器不支援定位功能");
+                alert("您的瀏覽器不支援地理位置功能。");
             }
         }
-        
-        getLocation();
+
+        function showPosition(position) {
+            document.getElementById("longitude").value = position.coords.longitude;
+            document.getElementById("latitude").value = position.coords.latitude;
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("使用者拒絕了地理位置的請求。");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("地理位置資訊無法取得。");
+                    break;
+                case error.TIMEOUT:
+                    alert("取得地理位置資訊逾時。");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("發生未知的地理位置錯誤。");
+                    break;
+            }
+        }
+
+        function saveToExcel() {
+            const time = getCurrentDateTime();
+            const user = document.getElementById('user').value.trim();
+            const qualifiedPrefix = document.querySelector('input[name="qualified-prefix"]:checked').value;
+            const qualifiedType = document.querySelector('input[name="qualified-type"]:checked').value;
+            const qualifiedSerial = document.getElementById('qualified-serial').value.trim();
+            let qualifiedFullNumber = "";
+            if (qualifiedSerial !== "") {
+                qualifiedFullNumber = qualifiedPrefix + qualifiedType + qualifiedSerial;
+            }
+            const otherNumber = document.getElementById('other-number').value.trim();
+            const deviationRadio = document.querySelector('input[name="deviation"]:checked');
+            let deviation = '';
+            if (deviationRadio) {
+                deviation = deviationRadio.value;
+                if (deviation === '其他') {
+                    deviation = document.getElementById('other-deviation-input').value.trim();
+                }
+            }
+            const checkResult = document.querySelector('input[name="checkResult"]:checked').value;
+            const unqualifiedReason = document.getElementById('unqualified-reason').value.trim();
+            const stopPrefix = document.querySelector('input[name="stop-prefix"]:checked').value;
+            const stopSerial = document.getElementById('stop-serial').value.trim();
+            let stopFullNumber = "";
+            if (stopSerial !== "") {
+                stopFullNumber = stopPrefix + stopSerial;
+            }
+            const checkQualifiedPrefix = document.querySelector('input[name="check-qualified-prefix"]:checked').value;
+            const checkQualifiedSerial = document.getElementById('check-qualified-serial').value.trim();
+            let checkQualifiedFullNumber = "";
+            if (checkQualifiedSerial !== "") {
+                checkQualifiedFullNumber = checkQualifiedPrefix + checkQualifiedSerial;
+            }
+            const longitude = document.getElementById('longitude').value.trim();
+            const latitude = document.getElementById('latitude').value.trim();
+
+            // 存入 Excel 前的查檢工作
+            // 一、"用戶"必須有資料
+            if (!user) {
+                alert("提醒：'用戶' 必須有資料。");
+                return; // 停止儲存
+            }
+
+            // 二、"檢定合格單號"與"其他單號"二者中須有一者有資料
+            if (!qualifiedFullNumber && !otherNumber) {
+                alert("提醒：'檢定合格單號' 與 '其他單號' 二者中須有一者有資料。");
+                return; // 停止儲存
+            }
+
+            // 三、"器差"必須有資料
+            if (!deviation) {
+                alert("提醒：'器差' 必須有資料。");
+                return; // 停止儲存
+            }
+
+            // 四、"檢查合格單號"與"停止使用單號"二者中須有一者有資料
+            if (!checkQualifiedFullNumber && !stopFullNumber) {
+                alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中須有一者有資料。");
+                return; // 停止儲存
+            }
+
+            const newData = {
+                "時間": time,
+                "用戶": user,
+                "檢定合格單號": qualifiedFullNumber,
+                "其他單號": otherNumber,
+                "器差(g)": deviation,
+                "檢查結果": checkResult,
+                "不合格原因": checkResult === '不合格' ? unqualifiedReason : '', // 只有在不合格時才記錄原因
+                "檢查合格單號": checkQualifiedFullNumber,
+                "停止使用單號": stopFullNumber,
+                "經度": longitude,
+                "緯度": latitude
+            };
+
+            allData.push(newData); // 將當前資料加入 allData 陣列
+            localStorage.setItem('weighingScaleData', JSON.stringify(allData)); // 將資料儲存到 localStorage
+
+            let wb = XLSX.utils.book_new();
+            let ws = XLSX.utils.json_to_sheet(allData); // 使用 allData 陣列建立工作表
+            XLSX.utils.book_append_sheet(wb, ws, "資料");
+            XLSX.writeFile(wb, '磅秤檢查.xlsx');
+
+            // 增加檢定合格單號的流水碼 (針對原始的檢定合格單號)
+            const currentQualifiedSerial = document.getElementById('qualified-serial').value;
+            if (currentQualifiedSerial) {
+                const serialNumber = parseInt(currentQualifiedSerial, 10);
+                if (!isNaN(serialNumber)) {
+                    const nextSerialNumber = serialNumber + 1;
+                    document.getElementById('qualified-serial').value = String(nextSerialNumber).padStart(currentQualifiedSerial.length, '0');
+                }
+            }
+
+            // 增加檢查合格單號的流水碼
+            const currentCheckQualifiedSerial = document.getElementById('check-qualified-serial').value;
+            let nextCheckQualifiedSerial = currentCheckQualifiedSerial; // 預設不變
+            if (currentCheckQualifiedSerial) {
+                const serialNumber = parseInt(currentCheckQualifiedSerial, 10);
+                if (!isNaN(serialNumber)) {
+                    const nextSerialNumber = serialNumber + 1;
+                    nextCheckQualifiedSerial = String(nextSerialNumber).padStart(currentCheckQualifiedSerial.length, '0');
+                }
+            }
+
+            // 清空輸入欄位
+            document.getElementById('user').value = '';
+            document.getElementById('qualified-serial').value = '';
+            document.getElementById('other-number').value = '';
+            const zeroDeviationRadio = document.querySelector('#deviation-options input[value="0"]');
+            if (zeroDeviationRadio) {
+                zeroDeviationRadio.checked = true;
+            }
+            document.getElementById('other-deviation-container').style.display = 'none';
+            document.getElementById('other-deviation-input').value = '';
+            document.getElementById('unqualified-reason').value = ''; // 清空不合格原因欄位
+            document.getElementById('unqualified-reason-container').style.display = 'none'; // 預設隱藏不合格原因輸入框
+            document.getElementById('stop-serial').value = '';
+            document.getElementById('check-qualified-serial').value = nextCheckQualifiedSerial; // 將增加後的數值寫回
+
+            // 更新時間
+            document.getElementById('time').value = getCurrentDateTime();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('time').value = getCurrentDateTime();
+            getLocation();
+        });
     </script>
 </body>
 </html>

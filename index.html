@@ -20,9 +20,6 @@
 <body>
     <h2>磅秤檢查</h2>
 
-    <label>時間:</label>
-    <input type="text" id="time" readonly>
-
     <label>用戶:</label>
     <input type="text" id="user" maxlength="30" placeholder="語音輸入，限30字">
     <button onclick="startSpeech('user', { maxChars: 30, lang: 'zh-TW' })">🎤</button>
@@ -50,16 +47,16 @@
     <input type="text" id="other-number" placeholder="語音輸入">
     <button onclick="startSpeech('other-number')">🎤</button>
 
-    <label>器差(g):</label>
+    <label>器差:</label>
     <div id="deviation-options">
         <label><input type="radio" name="deviation" value="+2e"> +2e</label>
         <label><input type="radio" name="deviation" value="+1e"> +1e</label>
         <label><input type="radio" name="deviation" value="0" checked> 0</label>
         <label><input type="radio" name="deviation" value="-1e"> -1e</label>
         <label><input type="radio" name="deviation" value="-2e"> -2e</label>
-        <label><input type="radio" name="deviation" value="其他"> 其他</label>
+        <label><input type="radio" name="deviation" value="其他e值"> 其他e值</label>
         <span id="other-deviation-container" style="display: none;">
-            <input type="text" id="other-deviation-input" maxlength="10" placeholder="請輸入其他器差">
+            <input type="text" id="other-deviation-input" maxlength="10" placeholder="輸入其他器差">
         </span>
     </div>
 
@@ -109,6 +106,9 @@
     <label>緯度:</label>
     <input type="text" id="latitude" readonly>
 
+    <label>時間:</label>
+    <input type="text" id="time" readonly>
+
     <button onclick="getLocation()">取得經緯度</button>
     <button onclick="saveToExcel()">存入 Excel</button>
 
@@ -117,14 +117,12 @@
         let lastQualifiedSerial = null; // 用於儲存前一個檢定合格單號的流水碼
 
         document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('time').value = getCurrentDateTime();
-            getLocation();
-
+            getLocation(); // 頁面載入時先嘗試取得經緯度 (但不顯示時間)
             // 監聽器差選項的變化
             const deviationOptions = document.getElementById('deviation-options');
             const otherDeviationContainer = document.getElementById('other-deviation-container');
             deviationOptions.addEventListener('change', function(event) {
-                if (event.target.value === '其他') {
+                if (event.target.value === '其他e值') {
                     otherDeviationContainer.style.display = 'inline-block';
                 } else {
                     otherDeviationContainer.style.display = 'none';
@@ -206,6 +204,7 @@
         }
 
         function getLocation() {
+            document.getElementById("time").value = getCurrentDateTime(); // 在取得經緯度時更新時間
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
@@ -236,7 +235,7 @@
         }
 
         function saveToExcel() {
-            const time = getCurrentDateTime();
+            const time = document.getElementById('time').value; // 從欄位中取得時間
             const user = document.getElementById('user').value.trim();
             const qualifiedPrefix = document.querySelector('input[name="qualified-prefix"]:checked').value;
             const qualifiedType = document.querySelector('input[name="qualified-type"]:checked').value;
@@ -250,7 +249,7 @@
             let deviation = '';
             if (deviationRadio) {
                 deviation = deviationRadio.value;
-                if (deviation === '其他') {
+                if (deviation === '其他e值') {
                     deviation = document.getElementById('other-deviation-input').value.trim();
                 }
             }
@@ -277,37 +276,46 @@
                 alert("提醒：'用戶' 必須有資料。");
                 return; // 停止儲存
             }
-
-            // 二、"檢定合格單號"與"其他單號"二者中須有一者有資料
+            // 二、"檢定合格單號"與"其他單號"二者中僅能一者有資料
+            if (qualifiedFullNumber && otherNumber) {
+                alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，僅能一者有資料。");
+                return; // 停止儲存
+            }
+            // 三、"檢定合格單號"與"其他單號"二者中須有一者有資料
             if (!qualifiedFullNumber && !otherNumber) {
-                alert("提醒：'檢定合格單號' 與 '其他單號' 二者中須有一者有資料。");
+                alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，須一者有資料。");
                 return; // 停止儲存
             }
 
-            // 三、"器差"必須有資料
+            // 四、"器差"必須有資料
             if (!deviation) {
                 alert("提醒：'器差' 必須有資料。");
                 return; // 停止儲存
             }
 
-            // 四、"檢查合格單號"與"停止使用單號"二者中須有一者有資料
+            // 五、"檢查合格單號"與"停止使用單號"二者中僅能一者有資料
+            if (checkQualifiedFullNumber && stopFullNumber) {
+                alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中，僅能一者有資料。");
+                return; // 停止儲存
+            }
+            // 六、"檢查合格單號"與"停止使用單號"二者中須有一者有資料
             if (!checkQualifiedFullNumber && !stopFullNumber) {
-                alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中須有一者有資料。");
+                alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中，須一者有資料。");
                 return; // 停止儲存
             }
 
             const newData = {
-                "時間": time,
                 "用戶": user,
                 "檢定合格單號": qualifiedFullNumber,
                 "其他單號": otherNumber,
-                "器差(g)": deviation,
+                "器差": deviation,
                 "檢查結果": checkResult,
                 "不合格原因": checkResult === '不合格' ? unqualifiedReason : '', // 只有在不合格時才記錄原因
                 "檢查合格單號": checkQualifiedFullNumber,
                 "停止使用單號": stopFullNumber,
                 "經度": longitude,
-                "緯度": latitude
+                "緯度": latitude,
+                "時間": time
             };
 
             allData.push(newData); // 將當前資料加入 allData 陣列
@@ -353,15 +361,7 @@
             document.getElementById('unqualified-reason-container').style.display = 'none'; // 預設隱藏不合格原因輸入框
             document.getElementById('stop-serial').value = '';
             document.getElementById('check-qualified-serial').value = nextCheckQualifiedSerial; // 將增加後的數值寫回
-
-            // 更新時間
-            document.getElementById('time').value = getCurrentDateTime();
         }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('time').value = getCurrentDateTime();
-            getLocation();
-        });
     </script>
 </body>
 </html>

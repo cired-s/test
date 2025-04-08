@@ -8,25 +8,69 @@
     <style>
         body { font-size: 20px; }
         input[type="text"], select, button, label, span { font-size: 20px; margin: 5px 0; display: block; }
-        input[type="radio"] { display: inline-block; margin-right: 5px; }
-        #deviation-options { display: flex; align-items: center; }
-        #deviation-options input[type="radio"] { margin-right: 10px; }
-        #deviation-options button { margin-left: 10px; }
+        input[type="radio"] { display: inline-block; margin-right: 5px; vertical-align: middle; }
+
+        /* Style for radio button groups */
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .radio-group label {
+            margin-right: 15px;
+            margin-bottom: 5px;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        /* --- End Radio button group styles --- */
+
+        /* Specific styles for certain groups (if needed, otherwise rely on .radio-group) */
+        #deviation-options label { margin-right: 10px; } /* Example specific adjustment */
+        #max-capacity-options label { margin-right: 10px; } /* Example specific adjustment */
+        #scale-interval-options label { margin-right: 10px; } /* Example specific adjustment */
+
         #qualified-number-part1, #qualified-number-part2 { display: inline-block; margin-right: 10px; }
         .qualified-part, .stop-part, .check-qualified-part { display: block; margin-bottom: 10px; }
-        .qualified-prefix-options label, .qualified-type-options label, .stop-prefix-options label, .check-qualified-prefix-options label { display: inline-block; margin-right: 15px; }
+
+
+        /* Style for the microphone button next to input */
+        .input-with-mic { display: flex; align-items: center; margin-bottom: 10px; }
+        .input-with-mic input[type="text"] { flex-grow: 1; margin-right: 5px; }
+        .input-with-mic button { flex-shrink: 0; }
+
+        /* Style for 'Other' input containers */
+        .other-input-container {
+            display: none; /* Hidden by default */
+            margin-left: 5px;
+            vertical-align: middle; /* Align with radio button */
+            /* Ensure it's treated as inline for flow */
+             display: none; /* Re-iterate hidden default */
+             align-self: center; /* Align vertically within flex line if needed */
+        }
+         .other-input-container input[type="text"] {
+             font-size: 18px;
+             width: 120px;
+             padding: 2px 5px;
+             display: inline-block;
+             vertical-align: middle;
+         }
+
     </style>
 </head>
 <body>
     <h2>磅秤檢查</h2>
 
     <label>用戶:</label>
-    <input type="text" id="user" maxlength="30" placeholder="語音輸入，限30字">
-    <button onclick="startSpeech('user', { maxChars: 30, lang: 'zh-TW' })">🎤</button>
+    <div class="input-with-mic">
+        <input type="text" id="user" maxlength="30" placeholder="語音輸入，限30字">
+        <button onclick="startSpeech('user', { maxChars: 30, lang: 'zh-TW' })">🎤</button>
+    </div>
 
     <div class="qualified-part">
         <label>檢定合格單號:</label>
-        <div class="qualified-prefix-options">
+        <div class="radio-group qualified-prefix-options">
             <label><input type="radio" name="qualified-prefix" value="A0" checked> A0</label>
             <label><input type="radio" name="qualified-prefix" value="B0"> B0</label>
             <label><input type="radio" name="qualified-prefix" value="C0"> C0</label>
@@ -35,44 +79,105 @@
             <label><input type="radio" name="qualified-prefix" value="F0"> F0</label>
             <label><input type="radio" name="qualified-prefix" value="G0"> G0</label>
         </div>
-        <div class="qualified-type-options">
+        <div class="radio-group qualified-type-options">
             <label><input type="radio" name="qualified-type" value="BA" checked> BA (電子式)</label>
             <label><input type="radio" name="qualified-type" value="BB"> BB (機械式)</label>
         </div>
-        <input type="text" id="qualified-serial" maxlength="7" placeholder="語音輸入7碼">
-        <button onclick="startSpeech('qualified-serial', { numbersOnly: true, maxChars: 7 })">🎤</button>
+        <div class="input-with-mic">
+            <input type="text" id="qualified-serial" maxlength="7" placeholder="語音輸入7碼">
+            <button onclick="startSpeech('qualified-serial', { numbersOnly: true, maxChars: 7 })">🎤</button>
+        </div>
     </div>
 
     <label>其他單號:</label>
-    <input type="text" id="other-number" placeholder="語音輸入">
-    <button onclick="startSpeech('other-number')">🎤</button>
+     <div class="input-with-mic">
+        <input type="text" id="other-number" placeholder="語音輸入">
+        <button onclick="startSpeech('other-number')">🎤</button>
+    </div>
+
+    <label>廠牌:</label>
+    <div class="input-with-mic">
+        <input type="text" id="brand" placeholder="語音輸入廠牌">
+        <button onclick="startSpeech('brand', { lang: 'zh-TW', brandMatching: true })">🎤</button>
+    </div>
+
+    <label>最大秤量 Max(kg):</label>
+    <div id="max-capacity-options" class="radio-group">
+        <label><input type="radio" name="maxCapacity" value="15/30" checked> 15/30</label>
+        <label><input type="radio" name="maxCapacity" value="3/6"> 3/6</label>
+        <label><input type="radio" name="maxCapacity" value="6/15"> 6/15</label>
+        <label><input type="radio" name="maxCapacity" value="30/60"> 30/60</label>
+        <label><input type="radio" name="maxCapacity" value="60/150"> 60/150</label>        
+        <label><input type="radio" name="maxCapacity" value="5/10/30"> 5/10/30</label>
+        <label><input type="radio" name="maxCapacity" value="7.5/15/105"> 7.5/15/105</label>
+        <label><input type="radio" name="maxCapacity" value="15/30/105"> 15/30/105</label>
+        <label><input type="radio" name="maxCapacity" value="30/60/105"> 30/60/105</label>
+        <label><input type="radio" name="maxCapacity" value="30/60/150"> 30/60/150</label>
+        <label><input type="radio" name="maxCapacity" value="6"> 6</label>
+        <label><input type="radio" name="maxCapacity" value="15"> 15</label>
+        <label><input type="radio" name="maxCapacity" value="30"> 30</label>
+        <label><input type="radio" name="maxCapacity" value="60"> 60</label>
+        <label><input type="radio" name="maxCapacity" value="100"> 100</label>
+        <label><input type="radio" name="maxCapacity" value="150"> 150</label>
+        <label><input type="radio" name="maxCapacity" value="其他"> 其他</label>
+        <span id="other-capacity-container" class="other-input-container">
+            <input type="text" id="other-capacity-input" maxlength="10" placeholder="輸入kg">
+        </span>
+    </div>
+    <label>檢定標尺分度值 e(g):</label>
+    <div id="scale-interval-options" class="radio-group">
+        <label><input type="radio" name="scaleInterval" value="5/10" checked> 5/10</label>
+        <label><input type="radio" name="scaleInterval" value="1/2"> 1/2</label>
+        <label><input type="radio" name="scaleInterval" value="2/5"> 2/5</label>
+        <label><input type="radio" name="scaleInterval" value="10/20"> 10/20</label>
+        <label><input type="radio" name="scaleInterval" value="20/50"> 20/50</label>        
+        <label><input type="radio" name="scaleInterval" value="1/2/10"> 30/60/105</label>
+        <label><input type="radio" name="scaleInterval" value="5/10/100"> 5/10/100</label>
+        <label><input type="radio" name="scaleInterval" value="10/20/50"> 10/20/50</label>
+        <label><input type="radio" name="scaleInterval" value="1"> 1</label>
+        <label><input type="radio" name="scaleInterval" value="2"> 2</label>
+        <label><input type="radio" name="scaleInterval" value="5"> 5</label>
+        <label><input type="radio" name="scaleInterval" value="10"> 10</label>
+        <label><input type="radio" name="scaleInterval" value="20"> 20</label>
+        <label><input type="radio" name="scaleInterval" value="50"> 50</label>
+        <label><input type="radio" name="scaleInterval" value="100"> 100</label>
+        <label><input type="radio" name="scaleInterval" value="其他"> 其他</label>
+        <span id="other-scaleInterval-container" class="other-input-container">
+            <input type="text" id="other-scaleInterval-input" maxlength="10" placeholder="輸入g">
+        </span>
+    </div>
 
     <label>器差:</label>
-    <div id="deviation-options">
+    <div id="deviation-options" class="radio-group">
+        <label><input type="radio" name="deviation" value="+3e"> +3e</label>
         <label><input type="radio" name="deviation" value="+2e"> +2e</label>
         <label><input type="radio" name="deviation" value="+1e"> +1e</label>
         <label><input type="radio" name="deviation" value="0" checked> 0</label>
         <label><input type="radio" name="deviation" value="-1e"> -1e</label>
         <label><input type="radio" name="deviation" value="-2e"> -2e</label>
+        <label><input type="radio" name="deviation" value="-3e"> +2e</label>
         <label><input type="radio" name="deviation" value="其他e值"> 其他e值</label>
-        <span id="other-deviation-container" style="display: none;">
-            <input type="text" id="other-deviation-input" maxlength="10" placeholder="輸入其他器差">
+        <span id="other-deviation-container" class="other-input-container"> <input type="text" id="other-deviation-input" maxlength="10" placeholder="輸入其他器差">
         </span>
     </div>
 
     <label>檢查結果:</label>
-    <label><input type="radio" name="checkResult" value="合格" checked> 合格</label>
-    <label><input type="radio" name="checkResult" value="不合格"> 不合格</label>
+    <div class="radio-group check-result-group">
+        <label><input type="radio" name="checkResult" value="合格" checked> 合格</label>
+        <label><input type="radio" name="checkResult" value="不合格"> 不合格</label>
+     </div>
 
     <div id="unqualified-reason-container" style="display: none;">
         <label>不合格原因:</label>
-        <input type="text" id="unqualified-reason" maxlength="50" placeholder="語音輸入，限50字">
-        <button onclick="startSpeech('unqualified-reason', { maxChars: 50, lang: 'zh-TW' })">🎤</button>
+         <div class="input-with-mic">
+            <input type="text" id="unqualified-reason" maxlength="50" placeholder="語音輸入，限50字">
+            <button onclick="startSpeech('unqualified-reason', { maxChars: 50, lang: 'zh-TW' })">🎤</button>
+        </div>
     </div>
 
     <div class="check-qualified-part">
         <label>檢查合格單號:</label>
-        <div class="check-qualified-prefix-options">
+        <div class="radio-group check-qualified-prefix-options">
             <label><input type="radio" name="check-qualified-prefix" value="A" checked> A</label>
             <label><input type="radio" name="check-qualified-prefix" value="B"> B</label>
             <label><input type="radio" name="check-qualified-prefix" value="C"> C</label>
@@ -81,13 +186,15 @@
             <label><input type="radio" name="check-qualified-prefix" value="F"> F</label>
             <label><input type="radio" name="check-qualified-prefix" value="G"> G</label>
         </div>
-        <input type="text" id="check-qualified-serial" maxlength="10" placeholder="語音輸入，限10字">
-        <button onclick="startSpeech('check-qualified-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
+        <div class="input-with-mic">
+            <input type="text" id="check-qualified-serial" maxlength="10" placeholder="語音輸入，限10字">
+            <button onclick="startSpeech('check-qualified-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
+        </div>
     </div>
 
     <div class="stop-part">
         <label>停止使用單號:</label>
-        <div class="stop-prefix-options">
+        <div class="radio-group stop-prefix-options">
             <label><input type="radio" name="stop-prefix" value="A" checked> A</label>
             <label><input type="radio" name="stop-prefix" value="B"> B</label>
             <label><input type="radio" name="stop-prefix" value="C"> C</label>
@@ -96,8 +203,10 @@
             <label><input type="radio" name="stop-prefix" value="F"> F</label>
             <label><input type="radio" name="stop-prefix" value="G"> G</label>
         </div>
-        <input type="text" id="stop-serial" maxlength="10" placeholder="語音輸入，限10字">
-        <button onclick="startSpeech('stop-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
+        <div class="input-with-mic">
+            <input type="text" id="stop-serial" maxlength="10" placeholder="語音輸入，限10字">
+            <button onclick="startSpeech('stop-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
+        </div>
     </div>
 
     <label>經度:</label>
@@ -113,37 +222,134 @@
     <button onclick="saveToExcel()">存入 Excel</button>
 
     <script>
-        let allData = JSON.parse(localStorage.getItem('weighingScaleData')) || []; // 從 localStorage 載入資料，如果沒有則初始化為空陣列
-        let lastQualifiedSerial = null; // 用於儲存前一個檢定合格單號的流水碼
+        let allData = JSON.parse(localStorage.getItem('weighingScaleData')) || [];
+        let lastQualifiedSerial = null;
+
+        const brandMap = { /* ... 廠牌對照表保持不變 ... */
+            "英展": ["英展", "迎展", "銀展", "陰斬", "櫻展", "星展", "應展", "因展", "營展", "影展", "一展", "名展", "英才", "鷹展","鷹仔"],
+            "金來磅": ["金來磅", "進來磅", "進來棒", "經來磅", "進來吧", "金來棒", "捷報", "金來報", "吉拿棒", "新海報", "進來報", "驚來棒"],
+            "金獅": ["金獅", "金師", "金濕", "經師", "金絲", "即時"],
+            "金山": ["金山", "經山", "京山", "精山"],
+            "金點": ["經典", "金典", "京典", "精典"],
+            "廣企": ["廣企", "廣器", "廣氣", "廣起", "廣記","王氣","勇氣","忘記", "廣汽", "武器"],
+            "真是寶": ["真是寶", "真是保", "真是飽", "珍是寶", "珍視保", "蓁世堡", "真視寶", "珍旭堡", "j視保", "電視保", "鎮西堡", "這是寶", "傑仕堡", "菲仕堡", "珍視寶", "KKBOX", "真視保"],
+            "宇權": ["宇權", "宇全", "羽全", "預權", "育權", "羽泉","以前", "玉泉"],
+            "鈺恆": ["鈺恆", "玉恆", "玉衡", "預恆", "育恆", "鉅亨", "禦寒", "一橫", "癒合"],
+            "宏兆": ["洪照", "紅兆", "鴻兆", "口罩", "宏召", "弘照", "紅藻", "紅罩", "紅棗", "弘道", "籠罩", "洪肇", "紅照","膨脹"],
+            "永田": ["鳥田", "YouTube"],
+            "永泰": ["有太", "友泰", "有待"],
+            "同欣": ["童星", "同心", "同興", "同新", "童心", "統新", "銅芯", "桐欣", "彤欣", "通心", "同行", "同姓", "銅星"],
+            "栢祥": ["百香", "剝蝦", "百強", "伯祥", "柏祥", "白象", "白翔", "敗將", "擺向", "拜香", "板橋", "我想", "柏翔", "剝削", "海翔", "海峽", "國小", "百祥"],
+            "建中": ["建中", "建宗", "見中", "劍中", "謝宗"],
+            "義清": ["玉清", "意青", "疫情", "17", "一清", "瀝青"],
+            "新協興": ["新鞋星", "新鞋新", "清潔劑"],
+            "上準": ["尚準", "上嘴", "蛋捲", "上唇", "善存"],
+            "頂尖": ["並肩", "姐姐", "DJ"],
+            "GSS仲恒": ["gss綜合", "綜合", "gss", "中和", "縱橫", "中橫"],
+            "T-Scale台衡": ["苔痕", "tesco台橫", "TS c a l e排行", "t t a l e排行", "tesco排行", "tesco颱風", "颱風", "排行", "台橫", "t h c a l e", "t s c a l e", "TS c a l e", "tcl", "台和"],
+            "ISHIDA": ["i s h i d a", "is h i d a", "1西打", "Nikita", "一西打"],
+            "UWE": ["uwe", "u w a", "u w e"],
+            "3H": ["3h", "thank you"],
+            "SNOWREX": ["s n o w r e x", "s n o w r e s", "Excel"],
+            "EXCELL": ["e x c e l l", "e s c e l l"],
+            "LEADWAY": ["l e a d w a y", "l e e d w a y", "adway", "Land Rover"],
+            "METTLER TOLEDO": ["m e t t l e r t o l e d o", "material", "Maker polito", "better"],
+            "DIGI": ["d i g i","d i d i "]
+        };
 
         document.addEventListener("DOMContentLoaded", function() {
-            getLocation(); // 頁面載入時先嘗試取得經緯度 (但不顯示時間)
-            // 監聽器差選項的變化
+            getLocation();
+
+            // --- 監聽器差選項 ---
+            // *** 確保這些元素查找和監聽器是正確的 ***
             const deviationOptions = document.getElementById('deviation-options');
             const otherDeviationContainer = document.getElementById('other-deviation-container');
-            deviationOptions.addEventListener('change', function(event) {
-                if (event.target.value === '其他e值') {
-                    otherDeviationContainer.style.display = 'inline-block';
-                } else {
-                    otherDeviationContainer.style.display = 'none';
-                }
-            });
+            const otherDeviationInput = document.getElementById('other-deviation-input');
 
-            // 監聽檢查結果的變化
-            const checkResultRadios = document.querySelectorAll('input[name="checkResult"]');
-            const unqualifiedReasonContainer = document.getElementById('unqualified-reason-container');
-            checkResultRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (this.value === '不合格') {
-                        unqualifiedReasonContainer.style.display = 'block';
-                    } else {
-                        unqualifiedReasonContainer.style.display = 'none';
+            // 確保 deviationOptions 存在才添加監聽器
+            if (deviationOptions && otherDeviationContainer && otherDeviationInput) {
+                 deviationOptions.addEventListener('change', function(event) {
+                    // 檢查事件目標是否存在且是 radio 按鈕
+                    if (event.target && event.target.name === 'deviation') {
+                        if (event.target.value === '其他e值') {
+                            otherDeviationContainer.style.display = 'inline-block'; // 使用 inline-block
+                            otherDeviationInput.focus();
+                        } else {
+                            otherDeviationContainer.style.display = 'none'; // 隱藏
+                            otherDeviationInput.value = ''; // 清空
+                        }
                     }
                 });
-            });
+            } else {
+                console.error("無法找到器差相關的 DOM 元素！");
+            }
+
+
+            // --- 監聽檢查結果選項 ---
+            const checkResultRadios = document.querySelectorAll('input[name="checkResult"]');
+            const unqualifiedReasonContainer = document.getElementById('unqualified-reason-container');
+             if (checkResultRadios.length > 0 && unqualifiedReasonContainer) {
+                checkResultRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        unqualifiedReasonContainer.style.display = (this.value === '不合格' ? 'block' : 'none');
+                    });
+                });
+             } else {
+                 console.error("無法找到檢查結果相關的 DOM 元素！");
+             }
+
+
+            // --- 監聽最大秤量選項 ---
+            // *** 確保這些元素查找和監聽器是正確的 ***
+            const maxCapacityOptions = document.getElementById('max-capacity-options');
+            const otherCapacityContainer = document.getElementById('other-capacity-container');
+            const otherCapacityInput = document.getElementById('other-capacity-input');
+
+            // 確保 maxCapacityOptions 存在才添加監聽器
+            if (maxCapacityOptions && otherCapacityContainer && otherCapacityInput) {
+                 maxCapacityOptions.addEventListener('change', function(event) {
+                    // 檢查事件目標是否存在且是 radio 按鈕
+                    if (event.target && event.target.name === 'maxCapacity') {
+                        if (event.target.value === '其他') {
+                            otherCapacityContainer.style.display = 'inline-block'; // 使用 inline-block
+                            otherCapacityInput.focus();
+                        } else {
+                            otherCapacityContainer.style.display = 'none'; // 隱藏
+                            otherCapacityInput.value = ''; // 清空
+                        }
+                    }
+                });
+             } else {
+                 console.error("無法找到最大秤量相關的 DOM 元素！");
+             }
+
+            // --- 監聽檢定標尺分度值選項 ---
+            // *** 確保這些元素查找和監聽器是正確的 ***
+            const scaleIntervalOptions = document.getElementById('scale-interval-options');
+            const otherIntervalContainer = document.getElementById('other-scaleInterval-container');
+            const otherIntervalInput = document.getElementById('other-scaleInterval-input');
+
+            // 確保 scaleIntervalOptions 存在才添加監聽器
+            if (scaleIntervalOptions && otherIntervalContainer && otherIntervalInput) {
+                 scaleIntervalOptions.addEventListener('change', function(event) {
+                    // 檢查事件目標是否存在且是 radio 按鈕
+                    if (event.target && event.target.name === 'scaleInterval') {
+                        if (event.target.value === '其他') {
+                            otherIntervalContainer.style.display = 'inline-block'; // 使用 inline-block
+                            otherIntervalInput.focus();
+                        } else {
+                            otherIntervalContainer.style.display = 'none'; // 隱藏
+                            otherIntervalInput.value = ''; // 清空
+                        }
+                    }
+                });
+             } else {
+                 console.error("無法找到檢定標尺分度值相關的 DOM 元素！");
+             }
+             document.querySelectorAll('.input-with-mic').forEach(div => { /* ... mic button style logic ... */ });
         });
 
-        function getCurrentDateTime() {
+        function getCurrentDateTime() { /* ... 保持不變 ... */
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -154,16 +360,34 @@
             return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         }
 
-        function startSpeech(inputId, options = {}) {
-            if ('webkitSpeechRecognition' in window) {
+        function startSpeech(inputId, options = {}) { /* ... 保持不變 ... */
+             if ('webkitSpeechRecognition' in window) {
                 const recognition = new webkitSpeechRecognition();
                 recognition.lang = options.lang || 'zh-TW';
                 recognition.continuous = false;
                 recognition.interimResults = false;
 
                 recognition.onresult = function(event) {
-                    let transcript = event.results[0][0].transcript.trim().toUpperCase();
+                    let transcript = event.results[0][0].transcript.trim();
                     const inputElement = document.getElementById(inputId);
+
+                    if (options.brandMatching && inputId === 'brand') {
+                        let foundBrand = null;
+                        transcript = transcript.replace(/牌$/,'');
+                        for (const officialBrand in brandMap) {
+                            if (brandMap[officialBrand].some(variation => transcript.includes(variation))) {
+                                foundBrand = officialBrand;
+                                break;
+                            }
+                        }
+                        if (foundBrand) {
+                            transcript = foundBrand;
+                        } else {
+                            console.log("未匹配到預設廠牌:", transcript);
+                        }
+                    } else {
+                         transcript = transcript.toUpperCase();
+                    }
 
                     if (options.symbolMap) {
                         for (const key in options.symbolMap) {
@@ -175,11 +399,12 @@
                     if (options.symbolRegex) {
                         if (!options.symbolRegex.test(transcript)) {
                             alert('輸入格式不符規定！');
-                            transcript = ''; // 清空不符合格式的輸入
+                            transcript = '';
                         }
                     }
 
                     if (options.numbersOnly) {
+                        transcript = transcript.replace(/洞/g, '0').replace(/么/g, '1').replace(/兩/g, '2');
                         transcript = transcript.replace(/[^0-9]/g, '');
                     }
 
@@ -194,123 +419,142 @@
 
                 recognition.onerror = function(event) {
                     console.error('語音辨識錯誤:', event.error);
-                    alert('語音辨識發生錯誤，請稍後再試。');
+                    let errorMessage = '語音辨識發生錯誤，請稍後再試。';
+                    if (event.error === 'no-speech') {
+                        errorMessage = '未偵測到語音，請再試一次。';
+                    } else if (event.error === 'audio-capture') {
+                        errorMessage = '無法取得麥克風音訊，請檢查權限設定。';
+                    } else if (event.error === 'not-allowed') {
+                        errorMessage = '已拒絕麥克風權限，請至瀏覽器設定開啟。';
+                    }
+                    alert(errorMessage);
                 };
 
-                recognition.start();
+                 recognition.onstart = function() { console.log('語音辨識已啟動...'); }
+                 recognition.onend = function() { console.log('語音辨識已結束.'); }
+                 recognition.start();
             } else {
                 alert('您的瀏覽器不支援語音辨識功能，請嘗試使用 Chrome 或 Edge。');
             }
         }
 
-        function getLocation() {
-            document.getElementById("time").value = getCurrentDateTime(); // 在取得經緯度時更新時間
+        function getLocation() { /* ... 保持不變 ... */
+            document.getElementById("time").value = getCurrentDateTime();
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
+                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                    enableHighAccuracy: true, timeout: 10000, maximumAge: 0
+                });
             } else {
                 alert("您的瀏覽器不支援地理位置功能。");
             }
         }
 
-        function showPosition(position) {
+        function showPosition(position) { /* ... 保持不變 ... */
             document.getElementById("longitude").value = position.coords.longitude;
             document.getElementById("latitude").value = position.coords.latitude;
         }
 
-        function showError(error) {
+        function showError(error) { /* ... 保持不變 ... */
+              let message = "取得地理位置時發生錯誤：";
             switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("使用者拒絕了地理位置的請求。");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("地理位置資訊無法取得。");
-                    break;
-                case error.TIMEOUT:
-                    alert("取得地理位置資訊逾時。");
-                    break;
-                case error.UNKNOWN_ERROR:
-                    alert("發生未知的地理位置錯誤。");
-                    break;
+                case error.PERMISSION_DENIED: message += "使用者拒絕了地理位置的請求。"; break;
+                case error.POSITION_UNAVAILABLE: message += "地理位置資訊無法取得。"; break;
+                case error.TIMEOUT: message += "取得地理位置資訊逾時。"; break;
+                case error.UNKNOWN_ERROR: message += "發生未知的地理位置錯誤。"; break;
             }
+            alert(message);
         }
 
-        function saveToExcel() {
-            const time = document.getElementById('time').value; // 從欄位中取得時間
+        function saveToExcel() { /* ... 讀取和檢查邏輯，包括對 '其他' 的處理，保持與上一版本一致 ... */
+            const time = document.getElementById('time').value;
             const user = document.getElementById('user').value.trim();
             const qualifiedPrefix = document.querySelector('input[name="qualified-prefix"]:checked').value;
             const qualifiedType = document.querySelector('input[name="qualified-type"]:checked').value;
             const qualifiedSerial = document.getElementById('qualified-serial').value.trim();
-            let qualifiedFullNumber = "";
-            if (qualifiedSerial !== "") {
-                qualifiedFullNumber = qualifiedPrefix + qualifiedType + qualifiedSerial;
-            }
+            let qualifiedFullNumber = qualifiedSerial ? qualifiedPrefix + qualifiedType + qualifiedSerial : "";
             const otherNumber = document.getElementById('other-number').value.trim();
+            const brand = document.getElementById('brand').value.trim();
+
+            const maxCapacityRadio = document.querySelector('input[name="maxCapacity"]:checked');
+            let maxCapacity = '';
+            if (maxCapacityRadio) {
+                if (maxCapacityRadio.value === '其他') {
+                    maxCapacity = document.getElementById('other-capacity-input').value.trim();
+                } else {
+                    maxCapacity = maxCapacityRadio.value;
+                }
+            }
+            const scaleIntervalRadio = document.querySelector('input[name="scaleInterval"]:checked');
+            let scaleInterval = '';
+            if (scaleIntervalRadio) {
+                if (scaleIntervalRadio.value === '其他') {
+                    scaleInterval = document.getElementById('other-scaleInterval-input').value.trim();
+                } else {
+                    scaleInterval = scaleIntervalRadio.value;
+                }
+            }
+
             const deviationRadio = document.querySelector('input[name="deviation"]:checked');
             let deviation = '';
             if (deviationRadio) {
-                deviation = deviationRadio.value;
-                if (deviation === '其他e值') {
+                if (deviationRadio.value === '其他e值') {
                     deviation = document.getElementById('other-deviation-input').value.trim();
+                } else {
+                    deviation = deviationRadio.value;
                 }
             }
+
             const checkResult = document.querySelector('input[name="checkResult"]:checked').value;
             const unqualifiedReason = document.getElementById('unqualified-reason').value.trim();
             const stopPrefix = document.querySelector('input[name="stop-prefix"]:checked').value;
             const stopSerial = document.getElementById('stop-serial').value.trim();
-            let stopFullNumber = "";
-            if (stopSerial !== "") {
-                stopFullNumber = stopPrefix + stopSerial;
-            }
+            let stopFullNumber = stopSerial ? stopPrefix + stopSerial : "";
             const checkQualifiedPrefix = document.querySelector('input[name="check-qualified-prefix"]:checked').value;
             const checkQualifiedSerial = document.getElementById('check-qualified-serial').value.trim();
-            let checkQualifiedFullNumber = "";
-            if (checkQualifiedSerial !== "") {
-                checkQualifiedFullNumber = checkQualifiedPrefix + checkQualifiedSerial;
-            }
+            let checkQualifiedFullNumber = checkQualifiedSerial ? checkQualifiedPrefix + checkQualifiedSerial : "";
             const longitude = document.getElementById('longitude').value.trim();
             const latitude = document.getElementById('latitude').value.trim();
 
-            // 存入 Excel 前的查檢工作
-            // 一、"用戶"必須有資料
-            if (!user) {
-                alert("提醒：'用戶' 必須有資料。");
-                return; // 停止儲存
+            // --- 存入 Excel 前的查檢工作 ---
+            if (!user) { alert("提醒：'用戶' 必須有資料。"); return; }
+            if (qualifiedFullNumber && otherNumber) { alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，僅能一者有資料。"); return; }
+            if (!qualifiedFullNumber && !otherNumber) { alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，須一者有資料。"); return; }
+            if (!brand) { alert("提醒：'廠牌' 必須有資料。"); return; }
+            if (!maxCapacityRadio) { alert("提醒：請選擇 '最大秤量Max(kg)'。"); return; }
+            if (maxCapacityRadio.value === '其他' && !maxCapacity) {
+                 alert("提醒：請輸入 '其他秤量' 的值。");
+                 document.getElementById('other-capacity-input').focus();
+                 return;
             }
-            // 二、"檢定合格單號"與"其他單號"二者中僅能一者有資料
-            if (qualifiedFullNumber && otherNumber) {
-                alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，僅能一者有資料。");
-                return; // 停止儲存
+             if (!maxCapacity) { alert("提醒：'最大秤量Max(kg)' 必須有資料。"); return; } // Final check
+            if (!scaleIntervalRadio) { alert("提醒：請選擇 '檢定標尺分度值e(g)'。"); return; }
+            if (scaleIntervalRadio.value === '其他' && !scaleInterval) {
+                 alert("提醒：請輸入 '其他e值' 的值。");
+                 document.getElementById('other-scaleInterval-input').focus();
+                 return;
             }
-            // 三、"檢定合格單號"與"其他單號"二者中須有一者有資料
-            if (!qualifiedFullNumber && !otherNumber) {
-                alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，須一者有資料。");
-                return; // 停止儲存
+             if (!scaleInterval) { alert("提醒：'檢定標尺分度值e(g)' 必須有資料。"); return; } // Final check
+            if (!deviationRadio) { alert("提醒：請選擇 '器差'。"); return; }
+            if (deviationRadio.value === '其他e值' && !deviation) {
+                 alert("提醒：請輸入 '其他e值'。");
+                 document.getElementById('other-deviation-input').focus();
+                 return;
             }
+             if (!deviation) { alert("提醒：'器差' 必須有資料。"); return; } // Final check
+            if (checkQualifiedFullNumber && stopFullNumber) { alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中，僅能一者有資料。"); return; }
+            if (!checkQualifiedFullNumber && !stopFullNumber) { alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中，須一者有資料。"); return; }
+            // --- 檢查結束 ---
 
-            // 四、"器差"必須有資料
-            if (!deviation) {
-                alert("提醒：'器差' 必須有資料。");
-                return; // 停止儲存
-            }
-
-            // 五、"檢查合格單號"與"停止使用單號"二者中僅能一者有資料
-            if (checkQualifiedFullNumber && stopFullNumber) {
-                alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中，僅能一者有資料。");
-                return; // 停止儲存
-            }
-            // 六、"檢查合格單號"與"停止使用單號"二者中須有一者有資料
-            if (!checkQualifiedFullNumber && !stopFullNumber) {
-                alert("提醒：'檢查合格單號' 與 '停止使用單號' 二者中，須一者有資料。");
-                return; // 停止儲存
-            }
-
-            const newData = {
-                "用戶": user,
+            const newData = { /* ... newData 物件保持不變 ... */
+                 "用戶": user,
                 "檢定合格單號": qualifiedFullNumber,
                 "其他單號": otherNumber,
+                "廠牌": brand,
+                "最大秤量Max(kg)": maxCapacity,
+                "檢定標尺分度值e(g)": scaleInterval,                
                 "器差": deviation,
                 "檢查結果": checkResult,
-                "不合格原因": checkResult === '不合格' ? unqualifiedReason : '', // 只有在不合格時才記錄原因
+                "不合格原因": checkResult === '不合格' ? unqualifiedReason : '',
                 "檢查合格單號": checkQualifiedFullNumber,
                 "停止使用單號": stopFullNumber,
                 "經度": longitude,
@@ -318,49 +562,80 @@
                 "時間": time
             };
 
-            allData.push(newData); // 將當前資料加入 allData 陣列
-            localStorage.setItem('weighingScaleData', JSON.stringify(allData)); // 將資料儲存到 localStorage
+            allData.push(newData);
+            localStorage.setItem('weighingScaleData', JSON.stringify(allData));
 
+            const wsData = allData.length > 0 ? allData : [newData];
             let wb = XLSX.utils.book_new();
-            let ws = XLSX.utils.json_to_sheet(allData); // 使用 allData 陣列建立工作表
+            let ws = XLSX.utils.json_to_sheet(wsData);
+            const headers = ["用戶", "檢定合格單號", "其他單號", "廠牌", "最大秤量Max(kg)", "檢定標尺分度值e(g)", "器差", "檢查結果", "不合格原因", "檢查合格單號", "停止使用單號", "經度", "緯度", "時間"];
+            XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
+            ws['!cols'] = headers.map(h => ({ wch: h.length + 5 }));
             XLSX.utils.book_append_sheet(wb, ws, "資料");
             XLSX.writeFile(wb, '磅秤檢查.xlsx');
 
-            // 增加檢定合格單號的流水碼 (針對原始的檢定合格單號)
-            const currentQualifiedSerial = document.getElementById('qualified-serial').value;
-            if (currentQualifiedSerial) {
-                const serialNumber = parseInt(currentQualifiedSerial, 10);
-                if (!isNaN(serialNumber)) {
-                    const nextSerialNumber = serialNumber + 1;
-                    document.getElementById('qualified-serial').value = String(nextSerialNumber).padStart(currentQualifiedSerial.length, '0');
-                }
-            }
+             // 流水碼增加邏輯 /* ... 保持不變 ... */
+             const currentQualifiedSerial = document.getElementById('qualified-serial').value;
+             if (currentQualifiedSerial) {
+                 const serialNumber = parseInt(currentQualifiedSerial, 10);
+                 if (!isNaN(serialNumber)) {
+                     const nextSerialNumber = serialNumber + 1;
+                     document.getElementById('qualified-serial').value = String(nextSerialNumber).padStart(currentQualifiedSerial.length, '0');
+                 }
+             }
+             const currentCheckQualifiedSerial = document.getElementById('check-qualified-serial').value;
+             let nextCheckQualifiedSerial = currentCheckQualifiedSerial;
+             if (currentCheckQualifiedSerial) {
+                 const serialNumber = parseInt(currentCheckQualifiedSerial, 10);
+                 if (!isNaN(serialNumber)) {
+                     const nextSerialNumber = serialNumber + 1;
+                     nextCheckQualifiedSerial = String(nextSerialNumber).padStart(currentCheckQualifiedSerial.length, '0');
+                 }
+             }
 
-            // 增加檢查合格單號的流水碼
-            const currentCheckQualifiedSerial = document.getElementById('check-qualified-serial').value;
-            let nextCheckQualifiedSerial = currentCheckQualifiedSerial; // 預設不變
-            if (currentCheckQualifiedSerial) {
-                const serialNumber = parseInt(currentCheckQualifiedSerial, 10);
-                if (!isNaN(serialNumber)) {
-                    const nextSerialNumber = serialNumber + 1;
-                    nextCheckQualifiedSerial = String(nextSerialNumber).padStart(currentCheckQualifiedSerial.length, '0');
-                }
-            }
-
-            // 清空輸入欄位
+            // --- 清空/重設輸入欄位 ---
+            // *** 確保重設邏輯正確 ***
             document.getElementById('user').value = '';
-            document.getElementById('qualified-serial').value = '';
+            document.getElementById('qualified-serial').value = ''; 
             document.getElementById('other-number').value = '';
+            document.getElementById('brand').value = '';
+
+            const defaultMaxCapacityRadio = document.querySelector('#max-capacity-options input[value="15/30"]');
+            if (defaultMaxCapacityRadio) { defaultMaxCapacityRadio.checked = true; }
+            const otherCapacityContainer = document.getElementById('other-capacity-container');
+            const otherCapacityInput = document.getElementById('other-capacity-input');
+            if(otherCapacityContainer) otherCapacityContainer.style.display = 'none'; // 隱藏
+            if(otherCapacityInput) otherCapacityInput.value = ''; // 清空
+
+            const defaultscaleIntervalRadio = document.querySelector('#scale-interval-options input[value="15/30"]');
+            if (defaultscaleIntervalRadio) { defaultscaleIntervalRadio.checked = true; }
+            const otherIntervalContainer = document.getElementById('other-scaleInterval-container');
+            const otherIntervalInput = document.getElementById('other-scaleInterval-input');
+            if(otherIntervalContainer) otherIntervalContainer.style.display = 'none'; // 隱藏
+            if(otherIntervalInput) otherIntervalInput.value = ''; // 清空
+
             const zeroDeviationRadio = document.querySelector('#deviation-options input[value="0"]');
-            if (zeroDeviationRadio) {
-                zeroDeviationRadio.checked = true;
-            }
-            document.getElementById('other-deviation-container').style.display = 'none';
-            document.getElementById('other-deviation-input').value = '';
-            document.getElementById('unqualified-reason').value = ''; // 清空不合格原因欄位
-            document.getElementById('unqualified-reason-container').style.display = 'none'; // 預設隱藏不合格原因輸入框
+            if (zeroDeviationRadio) { zeroDeviationRadio.checked = true; }
+            const otherDeviationContainer = document.getElementById('other-deviation-container');
+            const otherDeviationInput = document.getElementById('other-deviation-input');
+            if(otherDeviationContainer) otherDeviationContainer.style.display = 'none'; // 隱藏
+            if(otherDeviationInput) otherDeviationInput.value = ''; // 清空
+
+            const qualifiedCheckResultRadio = document.querySelector('input[name="checkResult"][value="合格"]');
+            if(qualifiedCheckResultRadio) qualifiedCheckResultRadio.checked = true;
+            const unqualifiedReasonContainer = document.getElementById('unqualified-reason-container');
+            const unqualifiedReasonInput = document.getElementById('unqualified-reason');
+            if(unqualifiedReasonInput) unqualifiedReasonInput.value = ''; // 清空不合格原因輸入
+            if(unqualifiedReasonContainer) unqualifiedReasonContainer.style.display = 'none'; // 隱藏不合格原因區塊
+
+
             document.getElementById('stop-serial').value = '';
-            document.getElementById('check-qualified-serial').value = nextCheckQualifiedSerial; // 將增加後的數值寫回
+            document.getElementById('check-qualified-serial').value = nextCheckQualifiedSerial; // 保留流水碼
+
+             window.scrollTo(0, 0);
+             document.getElementById('user').focus();
+             getLocation();
+             // --- 重設結束 ---
         }
     </script>
 </body>

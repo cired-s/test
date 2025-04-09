@@ -64,7 +64,7 @@
 
     <label>用戶:</label>
     <div class="input-with-mic">
-        <input type="text" id="user" maxlength="30" placeholder="語音輸入，限30字">
+        <input type="text" id="user" maxlength="30" placeholder="語音輸入，限30字內">
         <button onclick="startSpeech('user', { maxChars: 30, lang: 'zh-TW' })">🎤</button>
     </div>
 
@@ -84,23 +84,29 @@
             <label><input type="radio" name="qualified-type" value="BB"> BB (機械式)</label>
         </div>
         <div class="input-with-mic">
-            <input type="text" id="qualified-serial" maxlength="7" placeholder="語音輸入7碼">
+            <input type="text" id="qualified-serial" maxlength="7" placeholder="語音輸入，限數字7碼">
             <button onclick="startSpeech('qualified-serial', { numbersOnly: true, maxChars: 7 })">🎤</button>
         </div>
     </div>
 
     <label>其他單號:</label>
      <div class="input-with-mic">
-        <input type="text" id="other-number" placeholder="語音輸入">
+        <input type="text" id="other-number" placeholder="語音輸入，限英數">
         <button onclick="startSpeech('other-number')">🎤</button>
     </div>
 
     <label>廠牌:</label>
     <div class="input-with-mic">
-        <input type="text" id="brand" placeholder="語音輸入廠牌">
+        <input type="text" id="brand" placeholder="語音輸入">
         <button onclick="startSpeech('brand', { lang: 'zh-TW', brandMatching: true })">🎤</button>
     </div>
 
+    <label>器號:</label>
+    <div class="input-with-mic">
+        <input type="text" id="instrument-number" maxlength="20" placeholder="語音輸入，限英數20字內">
+        <button onclick="startSpeech('instrument-number', { lang: 'zh-TW', alphanumericOnly: true, maxChars: 20 })">🎤</button>
+    </div>
+ 
     <label>最大秤量 Max(kg):</label>
     <div id="max-capacity-options" class="radio-group">
         <label><input type="radio" name="maxCapacity" value="15/30" checked> 15/30</label>
@@ -121,7 +127,7 @@
         <label><input type="radio" name="maxCapacity" value="150"> 150</label>
         <label><input type="radio" name="maxCapacity" value="其他"> 其他</label>
         <span id="other-capacity-container" class="other-input-container">
-            <input type="text" id="other-capacity-input" maxlength="10" placeholder="輸入kg">
+            <input type="text" id="other-capacity-input" maxlength="15" placeholder="輸入kg">
         </span>
     </div>
     <label>檢定標尺分度值 e(g):</label>
@@ -143,7 +149,7 @@
         <label><input type="radio" name="scaleInterval" value="100"> 100</label>
         <label><input type="radio" name="scaleInterval" value="其他"> 其他</label>
         <span id="other-scaleInterval-container" class="other-input-container">
-            <input type="text" id="other-scaleInterval-input" maxlength="10" placeholder="輸入g">
+            <input type="text" id="other-scaleInterval-input" maxlength="15" placeholder="輸入g">
         </span>
     </div>
 
@@ -157,7 +163,7 @@
         <label><input type="radio" name="deviation" value="-2e"> -2e</label>
         <label><input type="radio" name="deviation" value="-3e"> -3e</label>
         <label><input type="radio" name="deviation" value="其他e值"> 其他e值</label>
-        <span id="other-deviation-container" class="other-input-container"> <input type="text" id="other-deviation-input" maxlength="10" placeholder="輸入其他器差">
+        <span id="other-deviation-container" class="other-input-container"> <input type="text" id="other-deviation-input" maxlength="15" placeholder="輸入其他器差">
         </span>
     </div>
 
@@ -170,7 +176,7 @@
     <div id="unqualified-reason-container" style="display: none;">
         <label>不合格原因:</label>
          <div class="input-with-mic">
-            <input type="text" id="unqualified-reason" maxlength="50" placeholder="語音輸入，限50字">
+            <input type="text" id="unqualified-reason" maxlength="50" placeholder="語音輸入，限50字內">
             <button onclick="startSpeech('unqualified-reason', { maxChars: 50, lang: 'zh-TW' })">🎤</button>
         </div>
     </div>
@@ -187,7 +193,7 @@
             <label><input type="radio" name="check-qualified-prefix" value="G"> G</label>
         </div>
         <div class="input-with-mic">
-            <input type="text" id="check-qualified-serial" maxlength="10" placeholder="語音輸入，限10字">
+            <input type="text" id="check-qualified-serial" maxlength="10" placeholder="語音輸入，限10字內">
             <button onclick="startSpeech('check-qualified-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
         </div>
     </div>
@@ -204,7 +210,7 @@
             <label><input type="radio" name="stop-prefix" value="G"> G</label>
         </div>
         <div class="input-with-mic">
-            <input type="text" id="stop-serial" maxlength="10" placeholder="語音輸入，限10字">
+            <input type="text" id="stop-serial" maxlength="10" placeholder="語音輸入，限10字內">
             <button onclick="startSpeech('stop-serial', { numbersOnly: true, maxChars: 10 })">🎤</button>
         </div>
     </div>
@@ -294,9 +300,9 @@
                         unqualifiedReasonContainer.style.display = (this.value === '不合格' ? 'block' : 'none');
                     });
                 });
-             } else {
-                 console.error("無法找到檢查結果相關的 DOM 元素！");
-             }
+            } else {
+                console.error("無法找到檢查結果相關的 DOM 元素！");
+            }
 
 
             // --- 監聽最大秤量選項 ---
@@ -319,9 +325,9 @@
                         }
                     }
                 });
-             } else {
-                 console.error("無法找到最大秤量相關的 DOM 元素！");
-             }
+            } else {
+                console.error("無法找到最大秤量相關的 DOM 元素！");
+            }
 
             // --- 監聽檢定標尺分度值選項 ---
             // *** 確保這些元素查找和監聽器是正確的 ***
@@ -343,10 +349,47 @@
                         }
                     }
                 });
-             } else {
-                 console.error("無法找到檢定標尺分度值相關的 DOM 元素！");
-             }
-             document.querySelectorAll('.input-with-mic').forEach(div => { /* ... mic button style logic ... */ });
+            } else {
+                console.error("無法找到檢定標尺分度值相關的 DOM 元素！");
+            }
+
+            // --- *** 新增：限制 "其他單號" 輸入為英數 *** ---
+            const otherNumberInput = document.getElementById('other-number');
+
+            if (otherNumberInput) {
+                otherNumberInput.addEventListener('input', function(event) {
+                    const inputElement = event.target;
+                    const originalValue = inputElement.value;
+                    // 只保留大小寫英文字母和數字 (A-Z, a-z, 0-9)
+                    const filteredValue = originalValue.replace(/[^A-Za-z0-9]/g, '');
+ 
+                    // 只有在值被過濾掉（即包含非法字符）時才更新值
+                    if (originalValue !== filteredValue) {
+                         inputElement.value = filteredValue;
+                    }
+                });
+            } else {
+                console.error("無法找到 '其他單號' 輸入框 (ID: other-number)！");
+            }
+            // --- *** "其他單號" 輸入限制結束 *** ---
+            // --- *** 新增：限制 "器號" 輸入為英數 *** ---
+            const instrumentNumberInput = document.getElementById('instrument-number');
+              if (instrumentNumberInput) {
+                  instrumentNumberInput.addEventListener('input', function(event) {
+                      const inputElement = event.target;
+                      const originalValue = inputElement.value;
+                      // 只保留大小寫英文字母和數字
+                      const filteredValue = originalValue.replace(/[^A-Za-z0-9]/g, '');
+                      if (originalValue !== filteredValue) {
+                          inputElement.value = filteredValue;
+                      }
+                  });
+            } else {
+                  console.error("無法找到 '器號' 輸入框 (ID: instrument-number)！");
+            }
+            // --- *** "器號" 輸入限制結束 *** ---
+
+            document.querySelectorAll('.input-with-mic').forEach(div => { /* ... mic button style logic ... */ });
         });
 
         function getCurrentDateTime() { /* ... 保持不變 ... */
@@ -371,10 +414,27 @@
                     let transcript = event.results[0][0].transcript.trim();
                     const inputElement = document.getElementById(inputId);
 
+                    // *** 特別注意：如果 "其他單號" 也需要語音輸入，這裡的處理需要考慮 ***
+                    // 目前的語音輸入不會自動套用英數限制，只會處理語音轉文字的結果。
+                    // 如果語音輸入了非英數內容，會在用戶手動編輯或提交前被 'input' 事件過濾掉。
+                    if (inputId === 'other-number') {
+                        // 可以選擇在語音辨識後也立即過濾一次，但 'input' 事件處理更通用
+                         let filteredTranscript = transcript.replace(/[^A-Za-z0-9]/g, '');
+                         if (transcript !== filteredTranscript) {
+                            console.log("語音輸入 '其他單號' 包含非英數字元，已過濾。");
+                            // transcript = filteredTranscript; // 可選擇是否立即更新 transcript
+                         }
+                    }                    
+                    // *** 修改：優先處理 alphanumericOnly 過濾 ***
+                    if (options.alphanumericOnly) {
+                         transcript = transcript.replace(/[^A-Za-z0-9]/g, '');
+                    }
+
                     if (options.brandMatching && inputId === 'brand') {
                         let foundBrand = null;
-                        transcript = transcript.replace(/牌$/,'');
+                        //transcript = transcript.replace(/牌$/,'');
                         for (const officialBrand in brandMap) {
+                            let tempTranscript = event.results[0][0].transcript.trim().replace(/牌$/,''); // 重新獲取原始 transcript
                             if (brandMap[officialBrand].some(variation => transcript.includes(variation))) {
                                 foundBrand = officialBrand;
                                 break;
@@ -383,9 +443,10 @@
                         if (foundBrand) {
                             transcript = foundBrand;
                         } else {
+                            transcript = event.results[0][0].transcript.trim();
                             console.log("未匹配到預設廠牌:", transcript);
                         }
-                    } else {
+                    } else if (inputId !== 'other-number') { // 避免對已過濾或將要過濾的 other-number 轉大寫
                          transcript = transcript.toUpperCase();
                     }
 
@@ -414,6 +475,11 @@
 
                     if (inputElement) {
                         inputElement.value = transcript;
+                         // 手動觸發 input 事件，確保過濾邏輯也被執行 (如果上面沒有直接修改 transcript)
+                         if (inputId === 'other-number') {
+                             const inputEvent = new Event('input', { bubbles: true });
+                             inputElement.dispatchEvent(inputEvent);
+                         }
                     }
                 };
 
@@ -474,6 +540,8 @@
             let qualifiedFullNumber = qualifiedSerial ? qualifiedPrefix + qualifiedType + qualifiedSerial : "";
             const otherNumber = document.getElementById('other-number').value.trim();
             const brand = document.getElementById('brand').value.trim();
+            // *** 新增：讀取器號 ***
+            const instrumentNumber = document.getElementById('instrument-number').value.trim();
 
             const maxCapacityRadio = document.querySelector('input[name="maxCapacity"]:checked');
             let maxCapacity = '';
@@ -520,6 +588,9 @@
             if (qualifiedFullNumber && otherNumber) { alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，僅能一者有資料。"); return; }
             if (!qualifiedFullNumber && !otherNumber) { alert("提醒：'檢定合格單號' 與 '其他單號' 二者中，須一者有資料。"); return; }
             if (!brand) { alert("提醒：'廠牌' 必須有資料。"); return; }
+            
+            if (!instrumentNumber) { alert("提醒：'器號' 必須有資料。"); return; }
+            
             if (!maxCapacityRadio) { alert("提醒：請選擇 '最大秤量Max(kg)'。"); return; }
             if (maxCapacityRadio.value === '其他' && !maxCapacity) {
                  alert("提醒：請輸入 '其他秤量' 的值。");
@@ -546,10 +617,12 @@
             // --- 檢查結束 ---
 
             const newData = { /* ... newData 物件保持不變 ... */
-                 "用戶": user,
+                "用戶": user,
                 "檢定合格單號": qualifiedFullNumber,
                 "其他單號": otherNumber,
                 "廠牌": brand,
+                // *** 新增：加入器號 ***
+                "器號": instrumentNumber,
                 "最大秤量Max(kg)": maxCapacity,
                 "檢定標尺分度值e(g)": scaleInterval,                
                 "器差": deviation,
@@ -568,7 +641,7 @@
             const wsData = allData.length > 0 ? allData : [newData];
             let wb = XLSX.utils.book_new();
             let ws = XLSX.utils.json_to_sheet(wsData);
-            const headers = ["用戶", "檢定合格單號", "其他單號", "廠牌", "最大秤量Max(kg)", "檢定標尺分度值e(g)", "器差", "檢查結果", "不合格原因", "檢查合格單號", "停止使用單號", "經度", "緯度", "時間"];
+            const headers = ["用戶", "檢定合格單號", "其他單號", "廠牌", "器號", "最大秤量Max(kg)", "檢定標尺分度值e(g)", "器差", "檢查結果", "不合格原因", "檢查合格單號", "停止使用單號", "經度", "緯度", "時間"];
             XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
             ws['!cols'] = headers.map(h => ({ wch: h.length + 5 }));
             XLSX.utils.book_append_sheet(wb, ws, "資料");
@@ -599,6 +672,8 @@
             document.getElementById('qualified-serial').value = ''; 
             document.getElementById('other-number').value = '';
             document.getElementById('brand').value = '';
+            // *** 新增：清空器號 ***
+            document.getElementById('instrument-number').value = '';
 
             const defaultMaxCapacityRadio = document.querySelector('#max-capacity-options input[value="15/30"]');
             if (defaultMaxCapacityRadio) { defaultMaxCapacityRadio.checked = true; }
